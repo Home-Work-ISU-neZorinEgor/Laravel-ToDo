@@ -9,16 +9,11 @@
         </div>
     @endif
 
-    @if ($todos->count() > 0)
+    @if (count($todos) > 0)
         @foreach ($todos as $todo)
             <div class="task">
-                <h2>{{ $todo->title }}</h2>
-                <p>{{ $todo->description }}</p>
-                <form method="POST" action="{{ route('todos.soft-delete', $todo->id) }}">
-                    @csrf
-                    @method('DELETE')
-                    <button class="button1" type="submit">Удалить (мягкое)</button>
-                </form>
+                <h2>{{ $todo['title'] }}</h2>
+                <p>{{ $todo['description'] }}</p>
             </div>
         @endforeach
     @else
