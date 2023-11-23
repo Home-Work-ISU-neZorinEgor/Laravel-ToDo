@@ -2,63 +2,87 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TodoResource; 
+use App\Models\Todo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
 
 class TodoController extends Controller
+{ public function index()
+    {
+        return view('welcome');
+    }
+    
+    public function show(Todo $todo)
+    {
+        return response()->json(['todo' => new TodoResource($todo)], 200);
+    }
+
+    public function create()
+    {
+        return view('todos.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required',
+            'description' => 'required',
+        ]);
+
+        Todo::create($request->all());
+
+        return redirect('/todos')->with('success', 'Задача успешно созданна!');
+    }
+
+    public function edit(Todo $todo)
+    {
+        return view('todos.edit', compact('todo'));
+    }
+
+    public function update(Request $request, Todo $todo)
+    {
+        $request->validate([
+            'title' => 'required',
+            'description' => 'required',
+        ]);
+
+        $todo->update($request->all());
+
+        return redirect('/todos')->with('success', 'Задача успешно обнавленна!');
+    }
+
+    public function viewTodosList()
 {
-public function index()
-{
-    return view('welcome');
+    $todos = Todo::all();
+    return view('view_todos', ['todos' => $todos]);
 }
 
-
-public function viewTodos()
-    {
-    $todos = [];
-
-
-
+   public function viewTodos()
+{
+    $todos = Todo::all(); 
     return view('todos', ['todos' => $todos]);
 }
 
 
-public function viewTodosList()
-{
-    $todos = [];
+    public function destroy(Todo $todo)
+    {
+        $todo->delete();
 
-    if (file_exists(storage_path('app/todos.json'))) {
-        $todos = json_decode(file_get_contents(storage_path('app/todos.json')), true);
-    }
-    return view('view_todos', ['todos' => $todos]);
-}
-
-public function store(Request $request)
-{
-    // Валидация данных
-    $this->validate($request, [
-        'title' => 'required|max:255',
-        'description' => 'required',
-    ]);
-
-    $newTodo = [
-        'title' => $request->input('title'),
-        'description' => $request->input('description'),
-    ];
-
-    // Чтение существующих задач из файла
-    $todos = [];
-
-    if (file_exists(storage_path('app/todos.json'))) {
-        $todos = json_decode(file_get_contents(storage_path('app/todos.json')), true);
+        return redirect()->route('todos.index')
+            ->with('success', 'Задача успешно удалена');
     }
 
-    // Добавление новой задачи в массив задач
-    $todos[] = $newTodo;
+    public function softDelete(Todo $todo)
+    {
+        $todo->delete();
 
-    // Сохранение обновленных задач в файл
-    file_put_contents(storage_path('app/todos.json'), json_encode($todos));
 
-    return redirect('/todos')->with('success', 'Задача успешно добавлена!');
-}
+
+        return redirect('/todos')->with('success', 'Задача успешно удалена (мягкое удаление)!');
+            
+    }
+    
 
 }

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TodoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,8 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', 'App\Http\Controllers\TodoController@index');
-Route::get('/todos', 'App\Http\Controllers\TodoController@viewTodos');
-Route::post('/todos', 'App\Http\Controllers\TodoController@store');
-Route::get('/view-todos', 'App\Http\Controllers\TodoController@viewTodosList');
-
+Route::get('/', [TodoController::class, 'index']);
+Route::get('/todos', [TodoController::class, 'viewTodos']);
+Route::post('/todos', [TodoController::class, 'store']);
+Route::get('/view-todos', [TodoController::class, 'viewTodosList']);
+Route::delete('todos/{todo}/soft-delete', [TodoController::class, 'softDelete'])->name('todos.soft-delete');
